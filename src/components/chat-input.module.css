@@ -1,0 +1,22 @@
+.chat-form {
+  display: flex;
+  padding: 1rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 0.5rem;
+  box-shadow: 0 0.125rem 0.25rem #e0e0e0;
+}
+
+.chat-textarea {
+  all: unset;
+  padding: 1rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 0.5rem;
+  box-shadow: 0 0.125rem 0.25rem #e0e0e0;
+  width: 100%;
+  font-size: 1rem;
+  line-height: 1.5rem;
+  min-height: 1.5rem;
+  background-color: #fafafa;
+  /* see: https://developer.mozilla.org/ja/docs/Web/CSS/Reference/Properties/field-sizing */
+  field-sizing: content;
+}
