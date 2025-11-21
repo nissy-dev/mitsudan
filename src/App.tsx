@@ -1,11 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import lzstring from "lz-string";
 
+import { ChatInput } from "./components/chat-input";
 import { ChatMessages } from "./components/chat-messages";
 import {
   PromptMessage,
   useLanguageModelSession,
 } from "./functions/language-model";
-import { ChatInput } from "./components/chat-input";
 
 import styles from "./app.module.css";
 
@@ -15,9 +16,36 @@ type Message = {
 };
 
 function App() {
-  const { availability, session } = useLanguageModelSession();
+  const isSharedPage = !!window.location.hash;
 
+  if (isSharedPage) {
+    const encodedMessages = window.location.hash.slice(1);
+    const decompressedJson =
+      lzstring.decompressFromEncodedURIComponent(encodedMessages)!;
+    const sharedMessages: PromptMessage[] = JSON.parse(decompressedJson);
+    return (
+      <>
+        <div className={styles.header}>
+          <h1 className={styles.title}>mitsudan</h1>
+        </div>
+        <div className={styles.chat}>
+          <ChatMessages messages={sharedMessages} />
+        </div>
+      </>
+    );
+  }
+
+  const { availability, progress, session } = useLanguageModelSession();
   const [messages, setMessages] = useState<Message[]>([]);
+  const [showToast, setShowToast] = useState(false);
+
+  useEffect(() => {
+    if (showToast) {
+      const timer = setTimeout(() => setShowToast(false), 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [showToast]);
+
   const handleOnSend = async (message: string) => {
     setMessages((prev) => [...prev, { role: "user", content: message }]);
     const assistantIndex = messages.length + 1;
@@ -34,22 +62,51 @@ function App() {
       });
     }
   };
+  const handleOnShare = async () => {
+    if (messages.length === 0) return;
+    const messagesJson = JSON.stringify(messages);
+    const encodedMessages =
+      lzstring.compressToEncodedURIComponent(messagesJson);
+    const shareUrl = `${window.location.origin}${window.location.pathname}#${encodedMessages}`;
+    await navigator.clipboard.writeText(shareUrl);
+    setShowToast(true);
+  };
 
-  if (availability === "unavailable") {
-    return (
-      <div>Your device does not support the Chrome Language Model API.</div>
-    );
-  }
+  const tokenQuota = session?.inputQuota ?? 0;
+  const tokenUsage = session?.inputUsage ?? 0;
+  const tokenUsagePercentage =
+    tokenQuota > 0 ? Math.round((tokenUsage / tokenQuota) * 100) : 0;
 
   return (
-    // TODO: コンテキストの量の表示
-    // TODO: 会話履歴の共有ボタンの配置 (base64 エンコードして URL に含める)
     <>
-      <h1 className={styles.header}>mitsudan</h1>
-      <div className={styles.chat}>
-        <ChatMessages messages={messages} />
-        <ChatInput onSend={handleOnSend} />
+      <div className={styles.header}>
+        <h1 className={styles.title}>mitsudan</h1>
+        <div className={styles.actions}>
+          <span>{`Token Usage: ${tokenUsagePercentage}%`}</span>
+          <button className={styles.shareButton} onClick={handleOnShare}>
+            Share
+          </button>
+        </div>
       </div>
+      {availability === "unavailable" && (
+        <div className={styles.statusMessage}>
+          This device does not support the Prompt API.
+        </div>
+      )}
+      {(availability === "downloadable" || availability === "downloading") && (
+        <div className={styles.statusMessage}>
+          Downloading model... {progress.toFixed(2)}%
+        </div>
+      )}
+      {availability === "available" && (
+        <div className={styles.chat}>
+          <ChatMessages messages={messages} />
+          <ChatInput onSend={handleOnSend} />
+        </div>
+      )}
+      {showToast && (
+        <div className={styles.toast}>URL copied to clipboard!</div>
+      )}
     </>
   );
 }

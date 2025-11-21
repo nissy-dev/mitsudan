@@ -2,10 +2,11 @@ import { useEffect, useRef, useState } from "react";
 
 export const useLanguageModelSession = (): {
   availability: AvailabilityStatus;
+  progress: number;
   session: LanguageModelSession | null;
 } => {
   if (!("LanguageModel" in window)) {
-    return { availability: "unavailable", session: null };
+    return { availability: "unavailable", progress: 0, session: null };
   }
 
   const [availability, setAvailability] =
@@ -19,12 +20,20 @@ export const useLanguageModelSession = (): {
 
   // TODO: useState じゃなくて useRef の方が singleton の意味的には合っている
   const [session, setSession] = useState<LanguageModelSession | null>(null);
+  const [progress, setProgress] = useState<number>(0);
   const createSession = async () => {
     if (availability !== "available") return;
-    // TODO: model の download progress 対応
     const newSession = await LanguageModel.create({
-      expectedInputs: [{ type: "text", languages: ["en", "ja"] }],
+      expectedInputs: [{ type: "text", languages: ["ja"] }],
       expectedOutputs: [{ type: "text", languages: ["ja"] }],
+      monitor: (monitor: EventTarget) => {
+        monitor.addEventListener("downloadprogress", (evt: ProgressEvent) => {
+          if (evt.lengthComputable) {
+            const percentComplete = (evt.loaded / evt.total) * 100;
+            setProgress(percentComplete);
+          }
+        });
+      },
     });
     setSession(newSession);
   };
@@ -32,7 +41,7 @@ export const useLanguageModelSession = (): {
     createSession();
   }, [availability]);
 
-  return { availability, session };
+  return { availability, progress, session };
 };
 
 // Type definitions for the Prompt API (Prompt a built‑in language model)
