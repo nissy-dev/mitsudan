@@ -9,8 +9,9 @@ export const useLanguageModelSession = (): {
     return { availability: "unavailable", progress: 0, session: null };
   }
 
-  const [availability, setAvailability] =
-    useState<AvailabilityStatus>("unavailable");
+  const [availability, setAvailability] = useState<AvailabilityStatus | null>(
+    null
+  );
   const checkAvailability = async () => {
     setAvailability(await LanguageModel.availability());
   };
@@ -18,7 +19,6 @@ export const useLanguageModelSession = (): {
     checkAvailability();
   }, []);
 
-  // TODO: useState じゃなくて useRef の方が singleton の意味的には合っている
   const [session, setSession] = useState<LanguageModelSession | null>(null);
   const [progress, setProgress] = useState<number>(0);
   const createSession = async () => {

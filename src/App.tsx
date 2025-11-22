@@ -35,10 +35,8 @@ function App() {
     );
   }
 
-  const { availability, progress, session } = useLanguageModelSession();
-  const [messages, setMessages] = useState<Message[]>([]);
+  // Toast表示の制御
   const [showToast, setShowToast] = useState(false);
-
   useEffect(() => {
     if (showToast) {
       const timer = setTimeout(() => setShowToast(false), 2000);
@@ -46,6 +44,8 @@ function App() {
     }
   }, [showToast]);
 
+  const { availability, progress, session } = useLanguageModelSession();
+  const [messages, setMessages] = useState<Message[]>([]);
   const handleOnSend = async (message: string) => {
     setMessages((prev) => [...prev, { role: "user", content: message }]);
     const assistantIndex = messages.length + 1;
@@ -62,6 +62,8 @@ function App() {
       });
     }
   };
+
+  // メッセージ共有ボタンの処理
   const handleOnShare = async () => {
     if (messages.length === 0) return;
     const messagesJson = JSON.stringify(messages);
@@ -90,7 +92,8 @@ function App() {
       </div>
       {availability === "unavailable" && (
         <div className={styles.statusMessage}>
-          This device does not support the Prompt API.
+          This device is not supported. Please use the latest version of Chrome
+          for PC.
         </div>
       )}
       {(availability === "downloadable" || availability === "downloading") && (
