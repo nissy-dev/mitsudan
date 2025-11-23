@@ -46,21 +46,41 @@ function App() {
 
   const { availability, progress, session } = useLanguageModelSession();
   const [messages, setMessages] = useState<Message[]>([]);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [abortController, setAbortController] =
+    useState<AbortController | null>(null);
+
   const handleOnSend = async (message: string) => {
     setMessages((prev) => [...prev, { role: "user", content: message }]);
     const assistantIndex = messages.length + 1;
     setMessages((prev) => [...prev, { role: "assistant", content: "" }]);
-    const result = session?.promptStreaming(message);
-    for await (const chunk of result!) {
-      setMessages((prev) => {
-        const newMessages = [...prev];
-        newMessages[assistantIndex] = {
-          role: "assistant",
-          content: newMessages[assistantIndex].content + chunk,
-        };
-        return newMessages;
+
+    setIsGenerating(true);
+    const controller = new AbortController();
+    setAbortController(controller);
+
+    try {
+      const result = session?.promptStreaming(message, {
+        signal: controller.signal,
       });
+      for await (const chunk of result!) {
+        setMessages((prev) => {
+          const newMessages = [...prev];
+          newMessages[assistantIndex] = {
+            role: "assistant",
+            content: newMessages[assistantIndex].content + chunk,
+          };
+          return newMessages;
+        });
+      }
+    } finally {
+      setIsGenerating(false);
+      setAbortController(null);
     }
+  };
+
+  const handleOnStop = () => {
+    abortController?.abort();
   };
 
   // メッセージ共有ボタンの処理
@@ -84,7 +104,7 @@ function App() {
       <div className={styles.header}>
         <h1 className={styles.title}>mitsudan</h1>
         <div className={styles.actions}>
-          <span>{`Token Usage: ${tokenUsagePercentage}%`}</span>
+          <span>{`Context Usage: ${tokenUsagePercentage}%`}</span>
           <button className={styles.shareButton} onClick={handleOnShare}>
             Share
           </button>
@@ -104,7 +124,11 @@ function App() {
       {availability === "available" && (
         <div className={styles.chat}>
           <ChatMessages messages={messages} />
-          <ChatInput onSend={handleOnSend} />
+          <ChatInput
+            onSend={handleOnSend}
+            onStop={handleOnStop}
+            isGenerating={isGenerating}
+          />
         </div>
       )}
       {showToast && (
