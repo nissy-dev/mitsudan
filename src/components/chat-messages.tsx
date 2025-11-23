@@ -1,4 +1,6 @@
 import { useState } from "react";
+import ReactMarkdown from "react-markdown";
+import SyntaxHighlighter from "react-syntax-highlighter";
 
 import { PromptMessage } from "../functions/language-model";
 
@@ -26,7 +28,26 @@ export const ChatMessages = ({ messages }: Props) => {
       </div>
     ) : (
       <div key={index} className={styles.assistantMessageContainer}>
-        <div className={styles.assistantMessage}>{contentText}</div>
+        <div className={styles.assistantMessage}>
+          <ReactMarkdown
+            components={{
+              code({ className, children, ...props }) {
+                const match = /language-(\w+)/.exec(className);
+                const language = match ? match[1] : "";
+                if (!language) {
+                  return <code className={className}>{children}</code>;
+                }
+                return (
+                  <SyntaxHighlighter language={language}>
+                    {String(children).replace(/\n$/, "")}
+                  </SyntaxHighlighter>
+                );
+              },
+            }}
+          >
+            {contentText}
+          </ReactMarkdown>
+        </div>
         <button
           className={styles.copyButton}
           onClick={() => handleCopy(contentText, index)}

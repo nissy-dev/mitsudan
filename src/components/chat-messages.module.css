@@ -1,4 +1,6 @@
 .user-message {
+  width: fit-content;
+  max-width: 70%;
   font-size: 1rem;
   line-height: 1.5rem;
   white-space: pre-wrap;
@@ -16,8 +18,7 @@
 
 .assistant-message {
   font-size: 1.1em;
-  line-height: 2rem;
-  white-space: pre-wrap;
+  line-height: 1.75rem;
   word-wrap: break-word;
   padding-top: 2.5rem;
   padding-bottom: 1rem;

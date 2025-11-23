@@ -100,7 +100,7 @@ function App() {
     tokenQuota > 0 ? Math.round((tokenUsage / tokenQuota) * 100) : 0;
 
   return (
-    <>
+    <div className={styles.container}>
       <div className={styles.header}>
         <h1 className={styles.title}>mitsudan</h1>
         <div className={styles.actions}>
@@ -122,19 +122,23 @@ function App() {
         </div>
       )}
       {availability === "available" && (
-        <div className={styles.chat}>
-          <ChatMessages messages={messages} />
-          <ChatInput
-            onSend={handleOnSend}
-            onStop={handleOnStop}
-            isGenerating={isGenerating}
-          />
-        </div>
+        <>
+          <div className={styles.messagesContainer}>
+            <ChatMessages messages={messages} />
+          </div>
+          <div className={styles.inputContainer}>
+            <ChatInput
+              onSend={handleOnSend}
+              onStop={handleOnStop}
+              isGenerating={isGenerating}
+            />
+          </div>
+        </>
       )}
       {showToast && (
         <div className={styles.toast}>URL copied to clipboard!</div>
       )}
-    </>
+    </div>
   );
 }
 
