@@ -3,15 +3,12 @@ import lzstring from "lz-string";
 
 import { ChatInput } from "./components/chat-input";
 import { ChatMessages } from "./components/chat-messages";
-import {
-  PromptMessage,
-  useLanguageModelSession,
-} from "./functions/language-model";
+import { useLanguageModelSession } from "./functions/language-model";
 
 import styles from "./app.module.css";
 
 type Message = {
-  role: PromptMessage["role"];
+  role: LanguageModelMessage["role"];
   content: string;
 };
 
@@ -22,7 +19,7 @@ function App() {
     const encodedMessages = window.location.hash.slice(1);
     const decompressedJson =
       lzstring.decompressFromEncodedURIComponent(encodedMessages)!;
-    const sharedMessages: PromptMessage[] = JSON.parse(decompressedJson);
+    const sharedMessages: LanguageModelMessage[] = JSON.parse(decompressedJson);
     return (
       <>
         <div className={styles.header}>

@@ -2,12 +2,10 @@ import { useState } from "react";
 import ReactMarkdown from "react-markdown";
 import SyntaxHighlighter from "react-syntax-highlighter";
 
-import { PromptMessage } from "../functions/language-model";
-
 import styles from "./chat-messages.module.css";
 
 type Props = {
-  messages: PromptMessage[];
+  messages: LanguageModelMessage[];
 };
 
 export const ChatMessages = ({ messages }: Props) => {
