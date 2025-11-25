@@ -109,8 +109,8 @@ function App() {
       </div>
       {availability === "unavailable" && (
         <div className={styles.statusMessage}>
-          This device is not supported. Please use the latest version of Chrome
-          for PC.
+          このデバイスでは利用できません。PC 版 Chrome
+          の最新版でお試しください。
         </div>
       )}
       {(availability === "downloadable" || availability === "downloading") && (
