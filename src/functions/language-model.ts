@@ -20,7 +20,7 @@ export const useLanguageModelSession = (): {
   const [session, setSession] = useState<LanguageModel | null>(null);
   const [progress, setProgress] = useState<number>(0);
   const createSession = async () => {
-    if (availability !== "available") return;
+    if (availability === "unavailable") return;
     const newSession = await LanguageModel.create({
       expectedInputs: [{ type: "text", languages: ["ja"] }],
       expectedOutputs: [{ type: "text", languages: ["ja"] }],
