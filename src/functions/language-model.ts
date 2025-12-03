@@ -12,13 +12,9 @@ export const useLanguageModelSession = (): {
   );
   useEffect(() => {
     if (!isLanguageModelDefined) return;
-    LanguageModel.availability()
-      .then((result) => {
-        setAvailability(result);
-      })
-      .catch(() => {
-        setAvailability("unavailable");
-      });
+    LanguageModel.availability().then((availability) => {
+      setAvailability(availability);
+    });
   }, [isLanguageModelDefined]);
 
   const [session, setSession] = useState<LanguageModel | null>(null);
