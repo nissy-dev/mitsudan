@@ -1,27 +1,31 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 export const useLanguageModelSession = (): {
   availability: Availability;
   progress: number;
   session: LanguageModel | null;
 } => {
-  if (!("LanguageModel" in window)) {
-    return { availability: "unavailable", progress: 0, session: null };
-  }
-
-  const [availability, setAvailability] = useState<Availability | null>(null);
-  const checkAvailability = async () => {
-    setAvailability(await LanguageModel.availability());
-  };
+  const isLanguageModelDefined = "LanguageModel" in window;
+  const initialAvailability = isLanguageModelDefined ? null : "unavailable";
+  const [availability, setAvailability] = useState<Availability | null>(
+    initialAvailability
+  );
   useEffect(() => {
-    checkAvailability();
-  }, []);
+    if (!isLanguageModelDefined) return;
+    LanguageModel.availability()
+      .then((result) => {
+        setAvailability(result);
+      })
+      .catch(() => {
+        setAvailability("unavailable");
+      });
+  }, [isLanguageModelDefined]);
 
   const [session, setSession] = useState<LanguageModel | null>(null);
   const [progress, setProgress] = useState<number>(0);
-  const createSession = async () => {
-    if (availability === "unavailable") return;
-    const newSession = await LanguageModel.create({
+  useEffect(() => {
+    if (!isLanguageModelDefined) return;
+    LanguageModel.create({
       expectedInputs: [{ type: "text", languages: ["ja"] }],
       expectedOutputs: [{ type: "text", languages: ["ja"] }],
       monitor: (monitor: EventTarget) => {
@@ -32,12 +36,10 @@ export const useLanguageModelSession = (): {
           }
         });
       },
+    }).then((newSession) => {
+      setSession(newSession);
     });
-    setSession(newSession);
-  };
-  useEffect(() => {
-    createSession();
-  }, [availability]);
+  }, [isLanguageModelDefined]);
 
   return { availability, progress, session };
 };

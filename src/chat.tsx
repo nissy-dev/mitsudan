@@ -5,33 +5,14 @@ import { ChatInput } from "./components/chat-input";
 import { ChatMessages } from "./components/chat-messages";
 import { useLanguageModelSession } from "./functions/language-model";
 
-import styles from "./app.module.css";
+import styles from "./chat.module.css";
 
 type Message = {
   role: LanguageModelMessage["role"];
   content: string;
 };
 
-function App() {
-  const isSharedPage = !!window.location.hash;
-
-  if (isSharedPage) {
-    const encodedMessages = window.location.hash.slice(1);
-    const decompressedJson =
-      lzstring.decompressFromEncodedURIComponent(encodedMessages)!;
-    const sharedMessages: LanguageModelMessage[] = JSON.parse(decompressedJson);
-    return (
-      <>
-        <div className={styles.header}>
-          <h1 className={styles.title}>mitsudan</h1>
-        </div>
-        <div className={styles.chat}>
-          <ChatMessages messages={sharedMessages} />
-        </div>
-      </>
-    );
-  }
-
+export function Chat() {
   // Toast表示の制御
   const [showToast, setShowToast] = useState(false);
   useEffect(() => {
@@ -138,5 +119,3 @@ function App() {
     </div>
   );
 }
-
-export default App;

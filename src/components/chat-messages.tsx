@@ -29,7 +29,7 @@ export const ChatMessages = ({ messages }: Props) => {
         <div className={styles.assistantMessage}>
           <ReactMarkdown
             components={{
-              code({ className, children, ...props }) {
+              code({ className, children }) {
                 const match = /language-(\w+)/.exec(className);
                 const language = match ? match[1] : "";
                 if (!language) {
