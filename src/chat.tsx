@@ -22,7 +22,7 @@ export function Chat() {
     }
   }, [showToast]);
 
-  const { availability, progress, session } = useLanguageModelSession();
+  const { availability, session } = useLanguageModelSession();
   const [messages, setMessages] = useState<Message[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [abortController, setAbortController] =
@@ -92,11 +92,6 @@ export function Chat() {
         <div className={styles.statusMessage}>
           このデバイスでは利用できません。PC 版 Chrome
           の最新版でお試しください。
-        </div>
-      )}
-      {(availability === "downloadable" || availability === "downloading") && (
-        <div className={styles.statusMessage}>
-          Downloading model... {progress.toFixed(2)}%
         </div>
       )}
       {availability === "available" && (
