@@ -22,7 +22,7 @@ export function Chat() {
     }
   }, [showToast]);
 
-  const { availability, session } = useLanguageModelSession();
+  const { availability, promptStreaming, session } = useLanguageModelSession();
   const [messages, setMessages] = useState<Message[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [abortController, setAbortController] =
@@ -38,10 +38,10 @@ export function Chat() {
     setAbortController(controller);
 
     try {
-      const result = session?.promptStreaming(message, {
+      const result = await promptStreaming(message, {
         signal: controller.signal,
       });
-      for await (const chunk of result!) {
+      for await (const chunk of result) {
         setMessages((prev) => {
           const newMessages = [...prev];
           newMessages[assistantIndex] = {
