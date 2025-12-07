@@ -1,5 +1,5 @@
 import { useState } from "react";
-import ReactMarkdown from "react-markdown";
+import { Streamdown } from "streamdown";
 import SyntaxHighlighter from "react-syntax-highlighter";
 
 import styles from "./chat-messages.module.css";
@@ -27,7 +27,7 @@ export const ChatMessages = ({ messages }: Props) => {
     ) : (
       <div key={index} className={styles.assistantMessageContainer}>
         <div className={styles.assistantMessage}>
-          <ReactMarkdown
+          <Streamdown
             components={{
               code({ className, children }) {
                 const match = /language-(\w+)/.exec(className);
@@ -44,7 +44,7 @@ export const ChatMessages = ({ messages }: Props) => {
             }}
           >
             {contentText}
-          </ReactMarkdown>
+          </Streamdown>
         </div>
         <button
           className={styles.copyButton}
